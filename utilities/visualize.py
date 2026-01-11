@@ -313,4 +313,222 @@ def plot_median_price_by_district(
     plt.tight_layout()
     plt.show()
 
-    
+def plot_top_streets_by_median_price(
+    price_by_address_street,
+    district_col="address",
+    street_col="street_name",
+    median_col="median_price",
+    top_n=20,
+    figsize=(13, 8),
+    bar_color="#4C72B0",
+):
+    """
+    Vẽ biểu đồ barplot Top tuyến đường có median giá phòng cao nhất
+
+    Tham số
+    -------
+    price_by_address_street : pd.DataFrame
+        Bảng thống kê theo (district, street) đã sort sẵn.
+    district_col : str
+        Tên cột địa bàn.
+    street_col : str
+        Tên cột tuyến đường.
+    median_col : str
+        Tên cột median giá.
+    top_n : int
+        Số tuyến đường top cần hiển thị.
+    figsize : tuple
+        Kích thước figure.
+    bar_color : str
+        Màu cột.
+    """
+
+    # Lấy top N
+    top_pairs = price_by_address_street.head(top_n).copy()
+
+    # Tạo nhãn gộp: "Đường – Quận"
+    top_pairs["label"] = (
+        top_pairs[street_col].astype(str)
+        + " – "
+        + top_pairs[district_col].astype(str)
+    )
+
+    plt.figure(figsize=figsize)
+
+    ax = sns.barplot(
+        data=top_pairs,
+        x=median_col,
+        y="label",
+        color=bar_color,
+        edgecolor="black"
+    )
+
+    ax.set_title(
+        "Top tuyến đường có median giá phòng cao nhất",
+        fontsize=18,
+        weight="bold",
+        pad=12
+    )
+    ax.set_xlabel("Median giá phòng (triệu)", fontsize=13)
+    ax.set_ylabel("Tuyến đường – Địa bàn", fontsize=13)
+
+    ax.grid(axis="x", linestyle="--", alpha=0.35)
+    ax.set_yticklabels(ax.get_yticklabels(), fontsize=11)
+
+    # Hiển thị giá trị trên mỗi bar (KHÔNG for)
+    ax.bar_label(
+        ax.containers[0],
+        fmt="%.2f",
+        padding=4,
+        fontsize=10,
+        weight="bold"
+    )
+
+    plt.tight_layout()
+    plt.show()
+
+def plot_street_delta_vs_district(
+    top_delta,
+    district_col="address",
+    street_col="street_name",
+    delta_col="delta_vs_district",
+    top_n=20,
+    figsize=(15, 8),
+    bar_color="#4C72B0",
+):
+    """
+    Vẽ biểu đồ chênh lệch median giá tuyến đường so với median giá quận.
+
+    Tham số
+    -------
+    top_delta : pd.DataFrame
+        DataFrame đã có cột delta_vs_district và đã được sort.
+    district_col : str
+        Tên cột quận/địa bàn.
+    street_col : str
+        Tên cột tuyến đường.
+    delta_col : str
+        Tên cột chênh lệch giá.
+    top_n : int
+        Số tuyến đường hiển thị (dùng cho tiêu đề).
+    figsize : tuple
+        Kích thước figure.
+    bar_color : str
+        Màu cột.
+    """
+
+    df = top_delta.copy()
+
+    # Tạo label gộp: "street – district"
+    df["label"] = (
+        df[street_col].astype(str)
+        + " – "
+        + df[district_col].astype(str)
+    )
+
+    plt.figure(figsize=figsize)
+
+    ax = sns.barplot(
+        data=df,
+        x=delta_col,
+        y="label",
+        color=bar_color,
+        edgecolor="black"
+    )
+
+    ax.set_title(
+        "Chênh lệch median giá tuyến đường so với median giá quận",
+        fontsize=18,
+        weight="bold",
+        pad=12
+    )
+
+    ax.set_xlabel("Chênh lệch (triệu)", fontsize=13)
+    ax.set_ylabel("Tuyến đường – Địa bàn", fontsize=13)
+
+    ax.grid(axis="x", linestyle="--", alpha=0.35)
+    ax.set_yticklabels(ax.get_yticklabels(), fontsize=11)
+
+    # Ghi số lên thanh (KHÔNG for)
+    ax.bar_label(
+        ax.containers[0],
+        fmt="%.2f",
+        padding=4,
+        fontsize=10,
+        weight="bold"
+    )
+
+    plt.tight_layout()
+    plt.show()
+
+def plot_median_price_yes_no_amenity(
+    df_show,
+    amenity_col="Tiện ích",
+    col_no="Median (không)",
+    col_yes="Median (có)",
+    title="So sánh median giá phòng giữa nhóm CÓ và KHÔNG CÓ tiện ích",
+    ylabel="Median giá (triệu)",
+    figsize=(15, 7),
+    colors=("#4C72B0", "#A6C8E0"),
+    label_threshold=0.3,
+    label_offset=0.03,
+):
+    # Chuẩn bị dữ liệu
+    df_plot = df_show[[amenity_col, col_no, col_yes]].copy()
+
+    df_melt = df_plot.melt(
+        id_vars=amenity_col,
+        value_vars=[col_no, col_yes],
+        var_name="Nhóm",
+        value_name="Median Giá"
+    )
+
+    # Vẽ
+    plt.figure(figsize=figsize)
+    ax = sns.barplot(
+        data=df_melt,
+        x=amenity_col,
+        y="Median Giá",
+        hue="Nhóm",
+        palette=list(colors),
+        edgecolor="black"
+    )
+
+    ax.set_title(title, fontsize=16)
+    ax.set_xlabel(amenity_col, fontsize=12)
+    ax.set_ylabel(ylabel, fontsize=12)
+    plt.xticks(rotation=35, ha="right")
+    ax.grid(axis="y", linestyle="--", alpha=0.3)
+
+    # Ghi nhãn lên bar: chỉ hiện khi > threshold
+    # Seaborn hue=2 nhóm => thường có 2 containers
+    if len(ax.containers) >= 2:
+        c0, c1 = ax.containers[0], ax.containers[1]
+
+        v0 = np.asarray(getattr(c0, "datavalues", []), dtype=float)
+        v1 = np.asarray(getattr(c1, "datavalues", []), dtype=float)
+
+        labels0 = np.where(v0 > label_threshold, np.char.mod("%.2f", v0), "")
+        labels1 = np.where(v1 > label_threshold, np.char.mod("%.2f", v1), "")
+
+        ax.bar_label(c0, labels=labels0, padding=3, fontsize=9)
+        ax.bar_label(c1, labels=labels1, padding=3, fontsize=9)
+
+        # Nếu muốn đẩy label lên cao hơn chút (giống bạn h + 0.03)
+        # bar_label dùng padding theo points; label_offset giữ để bạn tinh chỉnh nếu cần.
+        # (Nếu bạn muốn offset đúng theo data-unit, nói mình chỉnh bản matplotlib thuần.)
+
+    # Legend
+    ax.legend(
+        title="Nhóm",
+        fontsize=10,
+        title_fontsize=11,
+        loc="center left",
+        bbox_to_anchor=(1.02, 0.5),
+        frameon=True,
+        facecolor="white",
+        edgecolor="black"
+    )
+
+    plt.tight_layout()
+    plt.show()

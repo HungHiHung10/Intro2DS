@@ -452,8 +452,6 @@ def summarize_price_by_district_street(
       1) Lọc street có >= min_ads_street tin
       2) Groupby theo (district, street) để tính stats giá + (area nếu có) + tiện ích trung bình
       3) Lọc cặp (district, street) có >= min_ads_pair tin
-
-    Không dùng for/list comprehension.
     """
 
     if amenity_cols is None:
@@ -527,3 +525,190 @@ def summarize_price_by_district_street(
 
     return price_by_address_street, df_street, valid_streets, amenity_cols_found
 
+def top_street_premium_vs_district(
+    price_by_address_street: pd.DataFrame,
+    district_col: str = "address",
+    street_col: str = "street_name",
+    median_col: str = "median_price",
+    top_n: int = 20,
+    include_area: bool = True,
+    sample_amenities=None,
+    round_digits: int = 2,
+    display_result: bool = True,
+):
+    """
+    Tính median giá của mỗi quận, sau đó tính chênh lệch (median_street - median_district),
+    và lấy top N tuyến đường có chênh lệch cao nhất.
+    """
+
+    if sample_amenities is None:
+        sample_amenities = [
+            "amenity_air_conditioning",
+            "amenity_balcony",
+            "amenity_mezzanine",
+            "amenity_elevator",
+            "amenity_parking",
+        ]
+
+    df = price_by_address_street.copy()
+
+    # 1) Median mỗi quận
+    district_median = df.groupby(district_col)[median_col].median()
+
+    # 2) Map vào từng dòng và tính delta
+    df["district_median"] = df[district_col].map(district_median)
+    df["delta_vs_district"] = df[median_col] - df["district_median"]
+
+    # 3) Top N tuyến đường premium hơn quận
+    top_delta = (
+        df.sort_values("delta_vs_district", ascending=False)
+          .head(top_n)
+          .reset_index(drop=True)
+    )
+
+    # 4) Chọn cột hiển thị (không for)
+    base_cols = pd.Index([
+        district_col,
+        street_col,
+        "count",
+        median_col,
+        "district_median",
+        "delta_vs_district",
+    ])
+
+    area_cols = pd.Index(["mean_area", "median_area"]) if include_area else pd.Index([])
+
+    amenity_cols = pd.Index(sample_amenities)
+
+    cols_to_show = (
+        base_cols
+        .append(area_cols)
+        .append(amenity_cols)
+    )
+
+    # Giữ lại những cột thực sự tồn tại trong df
+    cols_to_show = top_delta.columns.intersection(cols_to_show)
+
+    out = top_delta.loc[:, cols_to_show].round(round_digits)
+
+    if display_result:
+        display(out)
+
+    return out, top_delta
+
+def analyze_amenity_price_effect(
+    df_price: pd.DataFrame,
+    amenity_cols,
+    price_col: str = "price",
+    round_digits: int = 2,
+    display_result: bool = True,
+):
+    """
+    Phân tích ảnh hưởng của từng tiện ích (0/1) đến median giá phòng.
+
+    - So sánh median giá giữa nhóm có / không có tiện ích
+    - Tính chênh lệch tuyệt đối và phần trăm
+    """
+
+    # Chỉ giữ các tiện ích tồn tại trong dữ liệu
+    amenity_cols = df_price.columns.intersection(pd.Index(amenity_cols))
+    if len(amenity_cols) == 0:
+        print("Không có tiện ích hợp lệ.")
+        return None
+
+    # Chuẩn hóa tiện ích về 0/1
+    amenity_df = (
+        df_price[amenity_cols]
+        .apply(lambda s: s.astype(int) if s.dtype == bool else s)
+    )
+
+    # Chỉ giữ các dòng có giá và tiện ích hợp lệ (0/1)
+    valid_mask = amenity_df.isin([0, 1]).all(axis=1) & df_price[price_col].notna()
+    df_valid = pd.concat(
+        [df_price[[price_col]], amenity_df],
+        axis=1
+    ).loc[valid_mask]
+
+    if df_valid.empty:
+        print("Không đủ dữ liệu hợp lệ để phân tích.")
+        return None
+
+    # Chuyển sang dạng long để groupby 1 lần
+    long_df = (
+        df_valid
+        .melt(
+            id_vars=price_col,
+            var_name="amenity",
+            value_name="has_amenity"
+        )
+    )
+
+    # Thống kê theo (amenity, có/không)
+    stats = (
+        long_df
+        .groupby(["amenity", "has_amenity"])[price_col]
+        .agg(
+            count="size",
+            median="median"
+        )
+        .reset_index()
+    )
+
+    # Pivot để tách nhóm 0 / 1
+    pivot = stats.pivot(
+        index="amenity",
+        columns="has_amenity",
+        values=["count", "median"]
+    )
+
+    # Chỉ giữ các tiện ích có đủ cả 2 nhóm
+    pivot = pivot.dropna(subset=[("median", 0), ("median", 1)])
+
+    if pivot.empty:
+        print("Không có tiện ích nào có đủ 2 nhóm 0/1 để so sánh median.")
+        return None
+
+    # Tính chênh lệch
+    result = pd.DataFrame({
+        "amenity": pivot.index,
+        "Số lượng (không có)": pivot[("count", 0)],
+        "Số lượng (có)":      pivot[("count", 1)],
+        "Median (không)":     pivot[("median", 0)],
+        "Median (có)":        pivot[("median", 1)],
+    })
+
+    result["Chênh lệch"] = result["Median (có)"] - result["Median (không)"]
+    result["Chênh lệch (%)"] = (
+        result["Chênh lệch"] / result["Median (không)"] * 100
+    )
+
+    # Làm đẹp tên tiện ích
+    result["Tiện ích"] = (
+        result["amenity"]
+        .str.replace("_", " ")
+        .str.title()
+    )
+
+    # Sắp xếp theo mức ảnh hưởng
+    result = (
+        result[
+            [
+                "Tiện ích",
+                "Số lượng (không có)",
+                "Số lượng (có)",
+                "Median (không)",
+                "Median (có)",
+                "Chênh lệch",
+                "Chênh lệch (%)",
+            ]
+        ]
+        .round(round_digits)
+        .sort_values("Chênh lệch (%)", ascending=False)
+        .reset_index(drop=True)
+    )
+
+    if display_result:
+        print("Ảnh hưởng của từng tiện ích đến median giá phòng:")
+        display(result)
+
+    return result
