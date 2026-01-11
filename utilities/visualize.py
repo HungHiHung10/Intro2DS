@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pandas as pd
 
 def visualize_rental_price_analysis(df_line_chart, df_bar_chart):
     """
@@ -49,6 +50,7 @@ def visualize_rental_price_analysis(df_line_chart, df_bar_chart):
 
     plt.tight_layout()
     plt.show()
+
 def plot_price_main_vs_alley(
     df,
     main_street_label='Mặt tiền (Main Street)',
@@ -89,3 +91,176 @@ def plot_price_main_vs_alley(
     plt.grid(axis='y', linestyle='--', alpha=0.5)
     plt.tight_layout()
     plt.show()
+
+def plot_monthly_seasonality_compare(
+    df: pd.DataFrame,
+    price_col: str = "price",
+    district_col: str = "district",
+    month_col: str = "month",
+    figsize=(13, 4.5),
+):
+    """
+    Vẽ 2 biểu đồ so sánh mùa vụ theo tháng:
+    (1) Median theo tháng trên toàn bộ tin
+    (2) Median theo tháng sau khi lấy median theo quận rồi trung bình theo tháng
+    """
+
+    # 1) Median theo tháng (toàn bộ tin)
+    monthly = (
+        df.groupby(month_col)[price_col]
+          .median()
+          .reset_index(name="median_price")
+          .sort_values(month_col)
+    )
+
+    # 2) Median theo từng (quận, tháng)
+    district_month = (
+        df.groupby([district_col, month_col])[price_col]
+          .median()
+          .reset_index(name="district_month_median")
+    )
+
+    # 3) Trung bình median theo quận cho mỗi tháng
+    district_adjusted = (
+        district_month
+        .groupby(month_col)["district_month_median"]
+        .mean()
+        .reset_index(name="avg_district_median")
+        .sort_values(month_col)
+    )
+
+    # --- Vẽ ---
+    fig, axes = plt.subplots(
+        1, 2,
+        figsize=figsize,
+        sharey=True,
+        constrained_layout=True
+    )
+
+    # Cấu hình trục (không dùng for)
+    axes[0].set_xticks(range(1, 13))
+    axes[0].grid(True, which="major", linestyle="--", alpha=0.6)
+    axes[0].tick_params(axis="both", labelsize=10)
+
+    axes[1].set_xticks(range(1, 13))
+    axes[1].grid(True, which="major", linestyle="--", alpha=0.6)
+    axes[1].tick_params(axis="both", labelsize=10)
+
+    # Plot 1: median toàn bộ
+    axes[0].plot(
+        monthly[month_col],
+        monthly["median_price"],
+        marker="o",
+        linewidth=2,
+        markersize=5
+    )
+    axes[0].set_title("Median theo tháng (Lấy toàn bộ tin)", fontsize=12, pad=8)
+    axes[0].set_xlabel("Tháng", fontsize=11)
+    axes[0].set_ylabel("Giá thuê trung vị (triệu/tháng)", fontsize=11)
+
+    # Plot 2: median theo quận rồi trung bình
+    axes[1].plot(
+        district_adjusted[month_col],
+        district_adjusted["avg_district_median"],
+        marker="o",
+        linewidth=2,
+        markersize=5
+    )
+    axes[1].set_title("Median theo tháng (Lấy trung bình theo từng quận)", fontsize=12, pad=8)
+    axes[1].set_xlabel("Tháng", fontsize=11)
+
+    fig.suptitle(
+        "Ảnh hưởng mùa vụ theo tháng của giá thuê phòng trọ (TP.HCM)",
+        fontsize=13,
+        y=1.05
+    )
+
+    plt.show()
+
+    return monthly, district_adjusted, district_month
+
+def plot_monthly_boxplot_seasonality(
+    df: pd.DataFrame,
+    price_col: str = "price",
+    district_col: str = "district",
+    month_col: str = "month",
+    figsize=(14, 4.5),
+):
+    """
+    Vẽ 2 boxplot so sánh phân bố giá theo tháng:
+    (1) Toàn bộ tin
+    (2) Median theo từng quận rồi xét phân bố theo tháng
+    """
+
+    # =========================
+    # 1) Dữ liệu boxplot: toàn bộ tin theo tháng
+    # =========================
+    all_month_data = (
+        df[[month_col, price_col]]
+        .dropna()
+        .groupby(month_col)[price_col]
+        .apply(list)
+        .reindex(range(1, 13))
+        .fillna(value=pd.Series([[]] * 12))
+        .tolist()
+    )
+
+    # =========================
+    # 2) Dữ liệu boxplot: median theo (quận, tháng)
+    # =========================
+    district_month = (
+        df
+        .groupby([district_col, month_col])[price_col]
+        .median()
+        .reset_index(name="district_month_median")
+    )
+
+    district_month_data = (
+        district_month
+        .groupby(month_col)["district_month_median"]
+        .apply(list)
+        .reindex(range(1, 13))
+        .fillna(value=pd.Series([[]] * 12))
+        .tolist()
+    )
+
+    # =========================
+    # 3) Vẽ boxplot
+    # =========================
+    fig, axes = plt.subplots(
+        1, 2,
+        figsize=figsize,
+        sharey=True,
+        constrained_layout=True
+    )
+
+    # Boxplot 1: toàn bộ tin
+    axes[0].boxplot(
+        all_month_data,
+        labels=list(range(1, 13)),
+        showfliers=False
+    )
+    axes[0].set_title("Phân bố giá theo tháng (Toàn bộ tin)", fontsize=12)
+    axes[0].set_xlabel("Tháng")
+    axes[0].set_ylabel("Giá thuê (triệu/tháng)")
+    axes[0].grid(True, axis="y", linestyle="--", alpha=0.6)
+
+    # Boxplot 2: median từng quận
+    axes[1].boxplot(
+        district_month_data,
+        labels=list(range(1, 13)),
+        showfliers=False
+    )
+    axes[1].set_title("Phân bố giá theo tháng (Median từng quận)", fontsize=12)
+    axes[1].set_xlabel("Tháng")
+    axes[1].grid(True, axis="y", linestyle="--", alpha=0.6)
+
+    fig.suptitle(
+        "Phân bố giá thuê phòng trọ theo tháng (Boxplot)",
+        fontsize=13,
+        y=1.05
+    )
+
+    plt.show()
+
+    return district_month
