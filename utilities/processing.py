@@ -5,6 +5,10 @@ import re
 from geopy.geocoders import Nominatim
 from geopy.extra.rate_limiter import RateLimiter
 import os
+import re
+import glob
+from fuzzywuzzy import fuzz
+import sys
 
 # Khởi tạo công cụ định vị và cấu hình giới hạn tần suất để tuân thủ chính sách API
 geolocator = Nominatim(user_agent="hcm_rent_price")
@@ -258,3 +262,169 @@ def iqr_cap(series, k=1.5):
     upper = q3 + k * iqr
     # Thay thế các giá trị nằm ngoài ranh giới bằng giá trị biên (Capping)
     return series.clip(lower, upper)
+
+def covert_price(text):
+    if pd.isna(text):
+        return np.nan
+    text = str(text).lower().strip()
+    if any(word in text for word in ['thương lượng', 'liên hệ', 'call', 'zalo', 'inbox', 'lh', 'gọi']):
+        return np.nan
+    text = re.sub(r'\b(tháng|đồng|đ|/tháng|/thang|/th)\b', ' ', text)
+    text = text.replace(',', '.')
+    numbers = re.findall(r'\d+\.?\d*', text)
+    if any(word in text for word in ['trieu', 'triệu', 'tr', 'millions?', 'm$']):
+        matches = re.findall(r'(\d+\.?\d*)\s*(triệu|tr|trieu)', text)
+        if matches:
+            return float(matches[0][0])
+    if numbers:
+        candidates = []
+        for num in numbers:
+            num = num.replace('.', '')
+            if len(num) >= 6:
+                price = float(num) / 1_000_000
+                candidates.append(round(price, 2))
+        if candidates:
+            return max(candidates)
+    matches = re.search(r'(\d+\.?\d*)\s*k\b', text)
+    if matches:
+        return round(float(matches.group(1)) / 1000, 2)
+    matches = re.search(r'\b(\d+\.\d{1,2})\b', text)
+    if matches:
+        try:
+            val = float(matches.group(1))
+            if 0.5 <= val <= 50:
+                return val
+        except:
+            pass
+    return np.nan
+
+def covert_area(text):
+    if pd.isna(text):
+        return np.nan
+    text = str(text).lower()
+    text = re.sub(r'm²|m2|\bmét vuông\b|\bm2\b|\bm²\b', 'm2', text)
+    matches = re.findall(r'(\d+\.?\d*)\s*m2', text)
+    if matches:
+        return float(matches[-1])
+    matches = re.findall(r'(\d+)\s*m2', text)
+    if not matches:
+        matches = re.findall(r'(\d+)m2', text)
+    if matches:
+        return float(matches[-1])
+    matches = re.search(r'(?:khoảng|etwa|xấp xỉ)\s*(\d+)\s*m2', text)
+    if matches:
+        return float(matches.group(1))
+    return np.nan
+
+
+def fix_unicode_vn(text):
+    if pd.isna(text):
+        return ""
+    s = str(text)
+    fixes = {
+        'Ờng': 'ường', 'ờng': 'ường', 'Ường': 'ường', 'Trưường': 'Trường',
+        'ĐưỜng': 'Đường', 'đưỜng': 'đường', 'ĐƯỜNG': 'Đường',
+        'q.': 'Quận ', 'h.': 'Huyện ', 'p.': 'Phường ', 'x.': 'Xã '
+    }
+    for wrong, correct in fixes.items():
+        s = s.replace(wrong, correct)
+    return s
+
+def clean_street(text):
+    if pd.isna(text) or text == "UNKNOWN":
+        return "UNKNOWN"
+    text = str(text).strip()
+    pattern = r'^(đường|phố|đưường|duong|đ|d|đg|ngõ|hẻm|ngách|tỉnh lộ|quốc lộ|tl|ql)\s+'
+    clean_text = re.sub(pattern, '', text, flags=re.IGNORECASE)
+    clean_text = clean_text.strip(',. ')
+    return clean_text.title()
+
+def extract_street(address):
+    if pd.isna(address):
+        return pd.Series(["UNKNOWN", "UNKNOWN"])
+    raw = str(address)
+    addr = " " + fix_unicode_vn(raw).lower() + " "
+    house_number = "UNKNOWN"
+    street_name = "UNKNOWN"
+    house_match = re.search(r'\b(\d+[\d\/\-\.A-Za-z]*)\b', addr)
+    if house_match:
+        cand = house_match.group(1)
+        if len(cand.replace('/', '').replace('-', '').replace('.', '')) <= 10:
+            house_number = cand.upper()
+            addr = addr.replace(cand, " ")
+    street_prefixes = ['đường', 'duong', 'đuờng', 'đg', 'đ', 'phố', 'pho', 'đại lộ', 'dai lo',
+                       'quốc lộ', 'ql', 'tỉnh lộ', 'tl', 'hẻm', 'hem', 'ngõ', 'ngo', 'đường số',
+                       'ấp', 'ap', 'thôn', 'xóm']
+    stop_words = r',|\s+phường|\s+quận|\s+huyện|\s+thành phố|\s+tỉnh|\s+xã|\s+thị trấn|\s+thôn|\s+ấp|$'
+    found = False
+    for prefix in street_prefixes:
+        pattern = rf'{prefix}\s+([^,;\(\)\[\]]+?)(?={stop_words})'
+        match = re.search(pattern, addr)
+        if match:
+            name = match.group(1).strip()
+            if len(name) > 1 and not name.isdigit():
+                street_name = name
+                found = True
+                break
+    if not found:
+        pho_match = re.search(r'phố\s+([a-zA-Z\sàáảãạâấầẩẫậăắằẳẵặèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ]+)', addr)
+        if pho_match:
+            street_name = pho_match.group(1)
+        else:
+            first_part = addr.split(',')[0].strip()
+            for admin in ['phường', 'quận', 'huyện', 'tỉnh', 'xã']:
+                if admin in first_part:
+                    first_part = first_part.split(admin)[0]
+            if len(first_part) > 2:
+                street_name = first_part
+    street_name = clean_street(street_name)
+    return pd.Series([house_number, street_name])
+
+def extract_address(location):
+    if pd.isna(location):
+        return "UNKNOWN"
+    parts = str(location).split(',')
+    if len(parts) >= 2:
+        return parts[-2].strip() + ' - ' + parts[-1].strip()
+    else:
+        return "UNKNOWN"
+
+def amenity(text, config):
+    if pd.isna(text):
+        return 0
+    text = normalize_text(text)
+    for negative in config['negative']:
+        if negative in text:
+            return 0
+    for positive in config['positive']:
+        if positive in text:
+            return 1
+    for positive in config['positive']:
+        clean = positive.lower()
+        for word in text.split():
+            if fuzz.ratio(clean, word) >= config.get('fuzzy', 85):
+                return 1
+    return 0
+
+def normalize_text(text):
+    if pd.isna(text):
+        return ""
+    text = str(text).lower()
+    text = unicodedata.normalize('NFC', text)
+    replacements = {
+        'may lanh': 'máy lạnh', 'maylanh': 'máy lạnh', 'đh': 'điều hòa', 'dh': 'điều hòa',
+        'ac': 'máy lạnh', 'air': 'máy lạnh', 'tu lanh': 'tủ lạnh', 'may giat': 'máy giặt',
+        'gac lung': 'gác lửng', 'bancol': 'ban công', 'tu ao': 'tủ quần áo'
+    }
+    for old, new in replacements.items():
+        text = text.replace(old, new)
+    return text
+
+def process_date(date):
+    try:
+        match = re.search(r'\d{2}/\d{2}/\d{4}', str(date))
+        if match:
+            return pd.to_datetime(match.group(), format='%d/%m/%Y')
+        return pd.to_datetime(date)
+    except:
+        return pd.to_datetime(None)
