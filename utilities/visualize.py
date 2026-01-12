@@ -57,7 +57,7 @@ def plot_utility_percentages(data, title):
     Vẽ biểu đồ tỷ lệ phần trăm các tiện ích.
     """
     plt.figure(figsize=(12, 6))
-    sns.barplot(x='Utility', y='Percentage', data=data, palette='viridis')
+    sns.barplot(x='Utility', y='Percentage', data=data)
     
     plt.title(title, fontsize=14)
     plt.xlabel('Loại tiện ích', fontsize=12)
