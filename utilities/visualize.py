@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+import numpy as np
 
 def visualize_rental_price_analysis(df_line_chart, df_bar_chart):
     """
@@ -264,3 +265,80 @@ def plot_monthly_boxplot_seasonality(
     plt.show()
 
     return district_month
+
+def visualize_price_by_district(df, price_stats, x_limit=25):
+    """
+    Vẽ 2 biểu đồ: Boxplot (phân bố) và Barplot (giá trung bình) theo quận.
+    
+    Parameters:
+    - df: DataFrame chứa dữ liệu gốc (df_clean).
+    - price_stats: DataFrame thống kê đã sort (chứa index là tên quận và cột 'mean').
+    - x_limit: Giới hạn trục X cho biểu đồ Boxplot (mặc định 25).
+    """
+    fig, axes = plt.subplots(1, 2, figsize=(16, 7))
+
+    # 1. Boxplot - Phân bố giá
+    sns.boxplot(data=df, x='price', y='district', 
+                order=price_stats.index, color='lightblue', 
+                showfliers=True, fliersize=3, ax=axes[0])
+    
+    axes[0].set_title('Phân bố giá thuê phòng trọ theo quận', fontsize=14, fontweight='bold')
+    axes[0].set_xlabel('Giá thuê (Triệu đồng)', fontsize=11)
+    axes[0].set_ylabel('Quận', fontsize=11)
+    axes[0].set_xlim(0, x_limit)
+    axes[0].grid(axis='x', linestyle='--', alpha=0.5)
+
+    # 2. Biểu đồ cột - So sánh giá trung bình
+    # Kiểm tra xem price_stats là Series hay DataFrame có cột 'mean'
+    mean_values = price_stats['mean'] if 'mean' in price_stats.columns else price_stats
+    
+    axes[1].barh(price_stats.index, mean_values, color='steelblue', edgecolor='black')
+    axes[1].set_title('So sánh giá trung bình theo quận', fontsize=14, fontweight='bold')
+    axes[1].set_xlabel('Giá trung bình (Triệu đồng)', fontsize=11)
+    axes[1].set_ylabel('Quận', fontsize=11)
+    axes[1].grid(axis='x', linestyle='--', alpha=0.5)
+
+    # Thêm text hiển thị giá trị
+    for i, (idx, val) in enumerate(mean_values.items()):
+        axes[1].text(val + 0.2, i, f'{val:.1f}', va='center', fontsize=10, fontweight='bold')
+
+    plt.tight_layout()
+    plt.show()
+
+def plot_amenity_charts(amenity_comparison, top_diff, top_k=8, figsize=(15, 6)):
+    fig, axes = plt.subplots(1, 2, figsize=figsize)
+
+    # Chart 1: So sánh trực tiếp
+    top_amenities = top_diff.index[:top_k]
+    data_plot = amenity_comparison.loc[top_amenities, ['Binh dan', 'Cao cap']]
+    x = np.arange(len(top_amenities))
+    width = 0.35
+
+    axes[0].barh(
+        x - width / 2,
+        data_plot['Binh dan'],
+        width,
+        label='Bình dân',
+        color='#e74c3c'
+    )
+    axes[0].barh(
+        x + width / 2,
+        data_plot['Cao cap'],
+        width,
+        label='Cao cấp',
+        color='#2ecc71'
+    )
+    axes[0].set_yticks(x)
+    axes[0].set_yticklabels(top_amenities)
+    axes[0].set_title('Tỷ lệ có tiện nghi: Bình dân vs Cao cấp')
+    axes[0].legend()
+
+    # Chart 2: Độ chênh lệch
+    axes[1].barh(top_amenities, top_diff.values[:top_k], color='#3498db')
+    axes[1].set_title('Mức độ chênh lệch (%)')
+
+    for i, v in enumerate(top_diff.values[:top_k]):
+        axes[1].text(v + 1, i, f'{v:.1f}%', va='center')
+
+    plt.tight_layout()
+    plt.show()
