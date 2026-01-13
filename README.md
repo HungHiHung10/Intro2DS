@@ -126,9 +126,9 @@ _(analysis + visualize + insights được trình bày trong notebooks/Analysis.
 | 4   | Vũ Trần Phúc          | 23120333 | Word-embedding, CatBoost, Biến động giá & vị trí (Câu 3,4), Báo cáo tổng kết      |
 ## Kết quả & So sánh mô hình
 ### Kết quả huấn luyện mô hình XGBoost
-![XGBoost Traing Result](../assets/xgb.png)
+![XGBoost Traing Result](./assets/xgb.png)
 ### So sánh mô hình dự đoán giá phòng trọ
-![Visualize Result](../assets/compare.png)
+![Visualize Result](./assets/compare.png)
 | Model                       | R²     | MAE (Triệu VND) | MSE    | RMSE   |
 | --------------------------- | ------ | --------------- | ------ | ------ |
 | XGBoost Regressor           | **0.5518** | **0.5763**          | **0.5786** | **0.7607** |
