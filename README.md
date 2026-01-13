@@ -28,7 +28,7 @@
 
 ### Tổng quan
 
-Dự án này là đồ án cuối kỳ môn **Nhập môn Khoa học Dữ liệu (CSC17104)**. Nhóm thực hiện quy trình khoa học dữ liệu hoàn chỉnh nhằm phân tích và dự đoán giá thuê phòng trọ tại TP.HCM. Dữ liệu được thu thập từ website phongtro123.com, qua đó khám phá các yếu tố ảnh hưởng đến giá thuê và xây dựng mô hình Machine Learning để dự đoán giá dựa trên diện tích, vị trí và các tiện nghi đi kèm. Ngoài ra nhóm còn thực hiện thêm phần mở rộng "Kiểm tra tính xác thực của bài đăng" giúp người thuê tránh bị hụt hẩn hay mất tiền oan.
+Dự án này là đồ án cuối kỳ môn **Nhập môn Khoa học Dữ liệu (CSC14119)**. Nhóm thực hiện quy trình khoa học dữ liệu hoàn chỉnh nhằm phân tích và dự đoán giá thuê phòng trọ tại TP.HCM. Dữ liệu được thu thập từ website phongtro123.com, qua đó khám phá các yếu tố ảnh hưởng đến giá thuê và xây dựng mô hình Machine Learning để dự đoán giá dựa trên diện tích, vị trí và các tiện nghi đi kèm. Ngoài ra nhóm còn thực hiện thêm phần mở rộng "Kiểm tra tính xác thực của bài đăng" giúp người thuê tránh bị hụt hẩn hay mất tiền oan.
 
 ### Thông tin nhóm
 
