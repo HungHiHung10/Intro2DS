@@ -102,20 +102,97 @@ Intro2DS
 ```
 
 ## Quy trình & Notebook chính
-1. Data Collection → Crawl bài đăng từ phongtro123.com (title, url, tiện ích claim) → Lưu raw.csv
-2. Amenities Verification → Lấy 3 ảnh tiềm năng nhất → Dùng Gemini 2.5 Flash phân tích ảnh → So sánh với claim → Kết quả: ĐỦ / THIẾU + missing list
-3. EDA & Preprocessing → (sắp tới) Phân tích phân bố giá, diện tích, tỷ lệ "khai khống" tiện ích
-Meaningful Questions → (sắp tới) 5+ câu hỏi ý nghĩa + visualize
-4. Modeling → (tùy chọn mở rộng) Dự đoán giá phòng dựa trên tiện ích thực + claim, hoặc phân loại "tin thật / tin giả"
-5. Evaluation & Reflection → Báo cáo metrics, khó khăn, bài học
-## 5 Câu hỏi ý nghĩa
-1. Giá thuê phòng thay đổi như thế nào giữa các quận khác nhau? → Hỗ trợ sinh viên chọn khu vực phù hợp ngân sách.
-2. Tiện nghi nào phân biệt phòng bình dân và cao cấp? → Giúp đánh giá giá trị thực của listing.
-3. Biến động giá trong mùa cao điểm (giữa quận trung tâm & ven)? → Dự báo thời điểm thuê tốt nhất.
-4. Sự phân cực giá giữa mặt tiền và hẻm nhỏ trong cùng quận? → Hiểu ảnh hưởng vị trí chi tiết.
-5. Có yếu tố mùa vụ ảnh hưởng đến giá thuê tại TP.HCM? → Insight về xu hướng thời gian.
+Đây là mô tả chi tiết quy trình xử lý dữ liệu thông qua hệ thống các Jupyter Notebooks, được ánh xạ khớp với cấu trúc thư mục và lộ trình (timeline) dự án mà nhóm đã thực hiện. Quy trình này tuân thủ chặt chẽ mô hình **CRISP-DM** (Cross-Industry Standard Process for Data Mining).
 
-_(analysis + visualize + insights được trình bày trong notebooks/Analysis.ipynb)_
+### 1. Thu thập dữ liệu (Data Collection)
+
+* **Notebook:** `CrawlData.ipynb`
+* **Giai đoạn tương ứng:** Giai đoạn 2 (04/11 - 08/11/2025).
+* **Chi tiết quy trình:**
+  * **Mục tiêu:** Tự động hóa việc thu thập dữ liệu từ website mục tiêu là `phongtro123.com`.
+  * **Thực hiện:**
+    * Sử dụng thư viện crawl (như Selenium/BeautifulSoup) để duyệt qua các trang danh sách phòng trọ.
+    * Phân chia tác vụ crawl theo từng khoảng trang (ví dụ: Page 1-300, 301-600...) để chia tải cho các thành viên và tránh bị chặn IP.
+    * **Trích xuất đặc trưng (Features):** Thu thập các trường thông tin thô bao gồm: Tiêu đề (Title), Địa chỉ, Giá (Price), Diện tích (Area), Ngày đăng, Tiện ích (Claimed Amenities), Mô tả chi tiết và URL bài đăng.
+
+
+  * **Đầu ra:** Các file dữ liệu thành phần `Page1to300.csv`, `Page301to600.csv`... và file tổng hợp `raw.csv` nằm trong thư mục `Data/`.
+
+
+
+### 2. Sơ chế & Làm sạch dữ liệu (Data Cleaning & Preprocessing)
+
+* **Notebooks:** `ProcessingData.ipynb` (Sơ chế) và `Pre_Processing.ipynb` (Nâng cao).
+* **Giai đoạn tương ứng:** Giai đoạn 3 (08/11 - 20/11/2025) và một phần Giai đoạn 5.
+* **Chi tiết quy trình:**
+  * **Giai đoạn Sơ chế (`ProcessingData.ipynb`):**
+    * Hợp nhất (Merge) các file CSV thành phần thành một bộ dữ liệu duy nhất.
+    * Xử lý các dòng dữ liệu trùng lặp (Duplicates) để đảm bảo tính duy nhất của tin đăng.
+    * Loại bỏ các dòng rỗng (Empty rows) hoặc thiếu dữ liệu quá nhiều không thể cứu vãn.
+
+
+  * **Giai đoạn Tiền xử lý chuyên sâu (`Pre_Processing.ipynb`):**
+    * **Convert Data Types:** Chuyển đổi cột `Price` và `Area` từ dạng text sang dạng số thực (Float) để máy tính hiểu được.
+    * **Regex Extraction:** Sử dụng Regular Expressions để trích xuất thông tin quan trọng bị ẩn trong văn bản mô tả (ví dụ: tách quận/huyện từ địa chỉ, tách số điện thoại...).
+    * **Handling Categorical Data:** Xử lý các lỗi chính tả, đồng bộ hóa các từ đồng nghĩa (synonyms) và nhóm các danh mục hiếm (rare categories).
+
+
+  * **Đầu ra:** File `Data/processed.csv` sạch sẽ, sẵn sàng cho việc phân tích và đưa vào mô hình.
+
+
+
+### 3. Kiểm chứng tiện ích thông minh (Amenities Verification - Bonus)
+
+* **Notebook:** `Bonus_Extension.ipynb`
+* **Điểm nhấn công nghệ:** Sử dụng **Gemini 2.5 Flash** (Multimodal AI).
+* **Giai đoạn tương ứng:** Giai đoạn 6 (10/01 - 13/01/2026).
+* **Chi tiết quy trình:**
+  * **Vấn đề:** Các chủ trọ thường tích chọn "Có đủ tiện ích" (Claim) nhưng thực tế trong ảnh không có.
+  * **Giải pháp:**
+    1. Lấy URL ảnh từ dữ liệu đã crawl.
+    2. Gửi ảnh và danh sách tiện ích cần kiểm tra (ví dụ: máy lạnh, gác, kệ bếp) đến API của Gemini 2.5 Flash.
+    3. AI phân tích hình ảnh và trả về kết quả đối chiếu: **ĐỦ** hoặc **THIẾU** kèm lý do chi tiết.
+    4. So sánh kết quả AI với thông tin chủ trọ khai báo để đánh giá độ chính xác của dữ liệu tiện ích.
+
+  * **Mục đích:** Giúp người thuê nhà có cái nhìn chính xác hơn về tiện ích thực tế của phòng trọ, từ đó nâng cao độ tin cậy của dữ liệu.
+
+
+
+### 4. Khám phá dữ liệu & Phân tích chuyên sâu (EDA & Analysis)
+
+* **Notebooks:** `EDA.ipynb` và `Analysis.ipynb`.
+* **Giai đoạn tương ứng:** Giai đoạn 4 (24/11 - 04/12/2025) và Giai đoạn 5.
+* **Chi tiết quy trình:**
+  * **Khám phá (`EDA.ipynb`):**
+    * Thực hiện thống kê mô tả (Descriptive Statistics) để hiểu phân bố của Giá và Diện tích.
+    * Vẽ biểu đồ Heatmap để xem xét mối tương quan (Correlation) giữa các biến số (ví dụ: Diện tích tăng thì Giá có tăng tuyến tính không?).
+    * Phát hiện các giá trị ngoại lai (Outliers) – ví dụ: phòng trọ giá 200k hoặc 50 triệu/tháng.
+
+
+    * **Phân tích câu hỏi nghiên cứu (`Analysis.ipynb`):**
+    * Trả lời 5 câu hỏi ý nghĩa (Meaningful Questions) đã đặt ra ở Giai đoạn 5.
+    * Trực quan hóa (Visualize) các Insight tìm được để đưa vào báo cáo.
+
+
+  * **Đầu ra:** Insights chi tiết về dữ liệu và các biểu đồ minh họa.
+
+
+
+### 5. Xây dựng mô hình (Modeling & Evaluation)
+
+* **Notebook:** `Modeling.ipynb`
+* **Giai đoạn tương ứng:** Giai đoạn 5 và 6 (05/12/2025 - 13/01/2026).
+* **Chi tiết quy trình:**
+  * **Feature Engineering:** Chuẩn bị dữ liệu đầu vào, chia tập Train/Test/Validation.
+  * **Lựa chọn mô hình:** Thử nghiệm các thuật toán Regression như **Linear Regression, XGBoost, CatBoost**.
+  * **Hyperparameter Tuning:** Tinh chỉnh tham số để mô hình đạt hiệu suất cao nhất (Tối ưu hóa RMSE, MAE).
+  * **Đánh giá (Evaluation):** So sánh hiệu quả giữa các mô hình và chọn ra mô hình tốt nhất để dự đoán giá phòng trọ.
+  * **Lưu trữ:** Lưu model tốt nhất để có thể tái sử dụng.
+
+  * **Đầu ra:** Mô hình dự đoán giá phòng trọ với hiệu suất tối ưu.
+  
+_**Kết luận:**_
+Quy trình này đảm bảo tính khoa học, từ dữ liệu thô (Raw) đến tri thức (Insight) và cuối cùng là giải pháp (Model), khớp hoàn toàn với cấu trúc thư mục Github mà nhóm đã tổ chức.
 
 ## Phân công công việc (Tóm tắt)
 | STT | Thành viên            | MSSV     | Nhiệm vụ chính                                                                    |
@@ -126,7 +203,7 @@ _(analysis + visualize + insights được trình bày trong notebooks/Analysis.
 | 4   | Vũ Trần Phúc          | 23120333 | Word-embedding, CatBoost, Biến động giá & vị trí (Câu 3,4), Báo cáo tổng kết      |
 ## Kết quả & So sánh mô hình
 ### Kết quả huấn luyện mô hình XGBoost
-![XGBoost Traing Result](./assets/xgb.png)
+<!-- ![XGBoost Traing Result](./assets/xgb.png) -->
 ### So sánh mô hình dự đoán giá phòng trọ
 ![Visualize Result](./assets/compare.png)
 | Model                       | R²     | MAE (Triệu VND) | MSE    | RMSE   |
