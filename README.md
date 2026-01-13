@@ -28,7 +28,7 @@
 
 ### Tổng quan
 
-Dự án này là đồ án cuối kỳ môn **Nhập môn Khoa học Dữ liệu (CSC17104)**. Nhóm thực hiện quy trình khoa học dữ liệu hoàn chỉnh nhằm phân tích và dự đoán giá thuê phòng trọ tại TP.HCM. Dữ liệu được thu thập từ website phongtro123.com, qua đó khám phá các yếu tố ảnh hưởng đến giá thuê và xây dựng mô hình Machine Learning để dự đoán giá dựa trên diện tích, vị trí và các tiện nghi đi kèm.
+Dự án này là đồ án cuối kỳ môn **Nhập môn Khoa học Dữ liệu (CSC17104)**. Nhóm thực hiện quy trình khoa học dữ liệu hoàn chỉnh nhằm phân tích và dự đoán giá thuê phòng trọ tại TP.HCM. Dữ liệu được thu thập từ website phongtro123.com, qua đó khám phá các yếu tố ảnh hưởng đến giá thuê và xây dựng mô hình Machine Learning để dự đoán giá dựa trên diện tích, vị trí và các tiện nghi đi kèm. Ngoài ra nhóm còn thực hiện thêm phần mở rộng "Kiểm tra tính xác thực của bài đăng" giúp người thuê tránh bị hụt hẩn hay mất tiền oan.
 
 ### Thông tin nhóm
 
@@ -142,27 +142,20 @@ cd Intro2DS
 _Khuyến nghị sử dụng `venv` hoặc `conda` để quản lý môi trường ảo._
 
 ```bash
-
 conda create -n intro2ds python=3.10
-
 conda activate intro2ds
-
 ```
 
 1. Cài đặt dependencies
 
 ```bash
-
 pip install -r requirements.txt
-
 ```
 
 1. Chạy các notebooks theo thứ tự(trong thư mục `notebooks/`)
 
 ```bash
-
 jupyter notebook notebooks/
-
 ```
 
 ### 6.3. Chạy Notebook đúng thứ tự
