@@ -90,7 +90,7 @@ Intro2DS
 │    ├──   EDA.ipynb       # Khám phá dữ liệu (phân bố, correlation, outliers)
 │    ├──   Analysis.ipynb  # Trả lời 5 câu hỏi nghiên cứu + visualize insights
 │    ├──   Modeling.ipynb  # Xây dựng, tuning và đánh giá mô hình (Linear, XGBoost, CatBoost)
-│    └──   Bonus_Extension.ipynb # Phần mở rộng (Gemini check tiện ích qua ảnh, amenities verification)
+│    └──   Bonus_Extension.ipynb # Phần mở rộng (Gemini check tiện ích qua ảnh - amenities verification)
 │
 └───utilities              # Các module Python hỗ trợ (code tái sử dụng)
     ├──   analysis.py      # Hàm phân tích dữ liệu, tính toán metrics
@@ -142,28 +142,6 @@ _(analysis + visualize + insights được trình bày trong notebooks/Analysis.
 - **CatBoost** xếp thứ 2, vẫn vượt trội hơn các phiên bản Linear Regression.
 - **Linear Regression Optimized (ElasticNet)** cải thiện rõ rệt so với baseline (tăng R² từ 0.321 → 0.333), nhưng vẫn kém xa các mô hình boosting.
 - **Kết luận:** XGBoost là lựa chọn tối ưu cho bài toán dự đoán giá phòng trọ trong dự án này.
-
-## Reflection
-
-### Thành viên: Nguyễn Hữu Khánh Hưng - 23120271
-
-- **Khó khăn gặp phải:**  
-  - Giai đoạn thu thập dữ liệu: Việc crawl từ phongtro123.com gặp nhiều trở ngại như rate limit (bị chặn request sau một số lượng lớn truy cập), dữ liệu không đồng nhất (nhiều bài đăng thiếu tiện ích hoặc mô tả text lộn xộn), và phải xử lý pagination thủ công để thu thập đủ >20.000 records mà không bị block IP.  
-  - Preprocessing & EDA: Dữ liệu thô có nhiều missing values (đặc biệt ở tiện ích như máy giặt, gác lửng), giá và diện tích cần regex phức tạp để chuyển về float, đồng thời phát hiện outliers (giá phòng "ảo" quá cao/thấp do lỗi nhập liệu hoặc đàm phán).  
-  - Modeling & Tuning: Xây dựng baseline Linear Regression khá đơn giản, nhưng khi tinh chỉnh hyperparameter cho XGBoost và Linear Regression Optimized by ElasticNet (grid/random search với learning_rate, max_depth, n_estimators...) tốn rất nhiều thời gian và tài nguyên tính toán (máy cá nhân chạy chậm, phải thử nhiều lần để tránh overfitting/underfitting).  
-  - Merge code & README: Khi hợp nhất code từ 4 thành viên, gặp conflict ở một số notebook như `Pre_Processing.ipynb`, phải refactor thủ công để code sạch và chạy ổn định trên mọi máy. Viết README chi tiết cũng mất kha khá thời gian để đảm bảo hướng dẫn tái hiện chính xác.
-
-- **Bài học rút ra:**  
-  - Preprocessing và feature engineering chiếm phần lớn thời gian (khoảng 60–70%) nhưng là yếu tố quyết định chất lượng mô hình – dữ liệu sạch giúp XGBoost đạt R² cao hơn hẳn Linear Regression.  
-  - Hyperparameter tuning không chỉ là "thử nhiều" mà cần chiến lược (bắt đầu từ learning_rate thấp + early stopping, dùng random search trước grid search để tiết kiệm thời gian).  
-  - Làm việc nhóm hiệu quả nhờ GitHub (branching, pull request, peer review) giúp tránh mất dữ liệu/code và học hỏi lẫn nhau (tôi học được cách xử lý categorical từ bạn Phạm Quốc Khánh, và word-embedding từ bạn Vũ Trần Phúc).  
-  - README và documentation rõ ràng rất quan trọng – không chỉ để giảng viên chấm mà còn giúp chính mình tái hiện dự án sau này.
-
-- **Nếu có thêm thời gian:**  
-  - Scale dataset lớn hơn bằng cách crawl thêm từ nhatot.com hoặc chotot.com để tăng độ đa dạng dữ liệu và giảm bias.  
-  - Thử nghiệm ensemble (stacking XGBoost + CatBoost + LightGBM) hoặc thêm Deep learning (MLP với PyTorch) để đẩy R² lên cao hơn.  
-  - Tích hợp thêm nhiều feature địa lý hơn (khoảng cách đến trường đại học/metro bằng Google Maps API) và deploy mô hình thành web app đơn giản (Streamlit) để dự đoán giá realtime cho sinh viên.  
-  - Thực hiện A/B testing hoặc cross-validation nâng cao hơn để đánh giá độ ổn định mô hình trên các phân khúc giá khác nhau (phòng dưới 3 triệu vs trên 5 triệu).
 
 ## License
 MIT License - Phục vụ mục đích học tập & nghiên cứu.
