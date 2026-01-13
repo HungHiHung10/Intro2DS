@@ -202,7 +202,7 @@ Quy trình này đảm bảo tính khoa học, từ dữ liệu thô (Raw) đế
 | 3   | Châu Huỳnh Phúc       | 23120329 | Feature Engineering, Correlation, Mùa vụ (Câu 5), Quản lý tiến độ                 |
 | 4   | Vũ Trần Phúc          | 23120333 | Word-embedding, CatBoost, Biến động giá & vị trí (Câu 3,4), Báo cáo tổng kết      |
 ## Kết quả & So sánh mô hình
-### Kết quả huấn luyện mô hình XGBoost
+<!-- ### Kết quả huấn luyện mô hình XGBoost -->
 <!-- ![XGBoost Traing Result](./assets/xgb.png) -->
 ### So sánh mô hình dự đoán giá phòng trọ
 ![Visualize Result](./assets/compare.png)
