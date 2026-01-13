@@ -64,8 +64,6 @@ pip install -r requirements.txt
 jupyter notebook notebooks/
 ```
 ## Cấu trúc thư mục
-```text
-## Cấu trúc thư mục
 
 ```text
 Intro2DS
@@ -168,117 +166,7 @@ _(analysis + visualize + insights được trình bày trong notebooks/Analysis.
   - Thực hiện A/B testing hoặc cross-validation nâng cao hơn để đánh giá độ ổn định mô hình trên các phân khúc giá khác nhau (phòng dưới 3 triệu vs trên 5 triệu).
 
 ## License
-MIT License
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Dưới đây là phần hỗ trợ hoàn chỉnh để bạn đưa vào **báo cáo cuối kỳ** hoặc **slide thuyết trình** về kết quả mô hình dự đoán giá phòng trọ. Tôi sẽ giúp bạn trình bày bảng kết quả đẹp, phân tích ý nghĩa, và gợi ý cách viết phần đánh giá trong báo cáo.
-
-### 1. Bảng kết quả mô hình (định dạng Markdown đẹp, copy-paste trực tiếp vào báo cáo hoặc README)
-
-| Model                       | R²     | MAE (Triệu VND) | MSE    | RMSE   |
-| --------------------------- | ------ | --------------- | ------ | ------ |
-| XGBoost Regressor           | 0.5518 | 0.5763          | 0.5786 | 0.7607 |
-| CatBoost Regressor          | 0.4769 | 0.6438          | 0.8210 | 0.9061 |
-| Linear Regression Optimized | 0.3337 | 0.7630          | 1.0283 | 1.0140 |
-| Linear Regression           | 0.3251 | 0.7894          | 1.0523 | 1.0258 |
-
-- **XGBoost** vượt trội nhất về mọi chỉ số: R² cao nhất (giải thích được ~55% biến thiên giá), lỗi tuyệt đối (MAE) và lỗi bình phương trung bình (RMSE) thấp nhất.
-- **CatBoost** xếp thứ 2, vẫn tốt hơn hẳn hai mô hình Linear Regression.
-- **Linear Regression** (cả bản cơ bản và tối ưu) hoạt động kém nhất, chứng tỏ bài toán có tính phi tuyến tính cao (các feature như vị trí quận, tiện ích, diện tích... tương tác phức tạp).
-
-### 2. Phân tích & Insight chính (dùng để viết phần Evaluation trong báo cáo)
-
-- **R² Score** (độ giải thích của mô hình):
-  - XGBoost đạt 0.552 → mô hình giải thích được hơn 55% sự biến thiên của giá phòng trọ → mức chấp nhận được cho dữ liệu thực tế (nhà ở thường có noise cao từ yếu tố chủ quan như đàm phán, nội thất ẩn, vị trí hẻm cụ thể...).
-  - CatBoost 0.477 → vẫn tốt nhưng kém XGBoost một chút (có thể do CatBoost xử lý categorical tốt nhưng XGBoost sau tuning hiệu quả hơn).
-  - Linear Regression chỉ ~0.33 → cho thấy mối quan hệ giữa feature và giá không tuyến tính, cần mô hình tree-based.
-
-- **MAE (Mean Absolute Error)**: trung bình sai lệch dự đoán khoảng **576.000 VND** với XGBoost → khá hợp lý khi giá phòng trọ dao động từ 1–10 triệu/tháng (lỗi ~5–10% tùy phân khúc).
-
-- **RMSE**: phạt nặng lỗi lớn → XGBoost vẫn tốt nhất (0.761), nghĩa là ít dự đoán lệch xa so với thực tế.
-
-- **Kết luận tổng quát**:
-  - Mô hình tree-boosting (XGBoost, CatBoost) vượt trội hơn hẳn Linear Regression → chứng minh dữ liệu có tính phi tuyến và tương tác feature mạnh (ví dụ: quận trung tâm + máy lạnh + gác lửng sẽ đẩy giá lên đáng kể).
-  - XGBoost là mô hình tốt nhất trong dự án này sau khi tinh chỉnh tham số (hyperparameter tuning).
-  - Hiệu suất chưa đạt >0.7 R² có thể do: dữ liệu noise cao (giá đàm phán), thiếu feature quan trọng (hướng nhà, tầng, gần trường đại học...), hoặc cần thêm dữ liệu.
-
-### 3. Gợi ý nội dung viết vào báo cáo (phần 2.5 hoặc Evaluation)
-
-**Đánh giá mô hình (Model Evaluation)**
-
-Sau khi xây dựng và tinh chỉnh các mô hình, chúng em đánh giá hiệu suất trên tập test bằng các metrics chuẩn: R² (coefficient of determination), MAE, MSE, RMSE. Kết quả được trình bày trong bảng sau:
-
-[Bảng như trên]
-
-**Phân tích chi tiết:**
-- XGBoost Regressor đạt hiệu suất cao nhất với R² = 0.5518, MAE = 0.576 triệu VND, RMSE = 0.761 → Đây là mô hình được chọn làm mô hình cuối cùng (final model) nhờ khả năng xử lý tốt các feature phi tuyến tính và tương tác phức tạp trong dữ liệu phòng trọ.
-- CatBoost Regressor xếp thứ hai (R² = 0.4769), chứng tỏ thuật toán boosting với xử lý categorical native vẫn hiệu quả nhưng kém hơn XGBoost sau khi tuning.
-- Hai phiên bản Linear Regression (cơ bản và tối ưu) chỉ đạt R² khoảng 0.33 → cho thấy mô hình tuyến tính không phù hợp với bài toán này, do giá phòng chịu ảnh hưởng mạnh từ các yếu tố phi tuyến (vị trí, tiện ích, mùa vụ...).
-- Lỗi MAE ~0.58 triệu VND với XGBoost là mức chấp nhận được trong bối cảnh giá phòng trọ biến động lớn (từ 1–15 triệu/tháng), tương đương sai số trung bình khoảng 5–10% tùy phân khúc.
-
-**So sánh với tài liệu tham khảo:**
-- Kết quả R² ~0.55 tương đương hoặc cao hơn một số nghiên cứu tương tự về dự đoán giá nhà ở Việt Nam/ khu vực (ví dụ: các paper dùng XGBoost cho dữ liệu bất động sản thường đạt 0.5–0.7 tùy chất lượng dữ liệu).
-
-**Hạn chế & Hướng cải thiện:**
-- Dữ liệu vẫn còn noise (giá đàm phán, thiếu feature như khoảng cách đến trường học/metro).
-- Có thể cải thiện bằng: thêm feature engineering (word-embedding sâu hơn cho mô tả), ensemble XGBoost + CatBoost, hoặc thu thập thêm dữ liệu từ các nguồn khác (nhatot.com, chotot.com).
-
-### 4. Gợi ý visualize cho slide/báo cáo
-
-Nếu bạn dùng Matplotlib/Seaborn, thêm 3 biểu đồ so sánh (như trong code tôi chạy):
-- Bar chart R² (cao nhất là tốt)
-- Bar chart MAE (thấp nhất là tốt)
-- Bar chart RMSE (thấp nhất là tốt)
-
-Màu sắc: viridis cho R², magma cho MAE, coolwarm cho RMSE.
-
-Code mẫu (đã test):
-```python
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-df = pd.DataFrame({
-    'Model': ['XGBoost', 'CatBoost', 'LR Opt', 'LR'],
-    'R2': [0.5518, 0.4769, 0.3337, 0.3251],
-    'MAE': [0.576, 0.644, 0.763, 0.789],
-    'RMSE': [0.761, 0.906, 1.014, 1.026]
-})
-
-# Ví dụ vẽ R²
-plt.figure(figsize=(8,5))
-sns.barplot(x='Model', y='R2', data=df, palette='viridis')
-plt.title('So sánh R² Score')
-plt.ylim(0, 0.6)
-plt.show()
-```
-
-Chạy trong notebook để xuất ảnh → chèn vào báo cáo/slide.
-
-Bạn cần tôi giúp viết phần nào cụ thể hơn (ví dụ: phần Reflection cá nhân, thêm insight từ EDA, hoặc chỉnh bảng cho đẹp hơn trong Word)? Hoặc muốn thêm biểu đồ khác (feature importance của XGBoost)? Cứ bảo nhé, mình hỗ trợ tiếp! 💪
-
-
+MIT License - Phục vụ mục đích học tập & nghiên cứu.
 
 
 
