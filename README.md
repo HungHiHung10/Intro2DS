@@ -1,7 +1,7 @@
 # Đồ Án Nhập môn Khoa học Dữ liệu
 
 **Môn học:** Nhập môn Khoa học Dữ liệu  
-**Giảng viên Hướng dẫn:** Thầy Lê Ngọc Thành, Thầy Lê Nhựt Nam, Cô Võ Nam Thục Đoan  
+**Giảng viên Hướng dẫn:** Thầy Lê Nhựt Nam, Cô Võ Nam Thục Đoan  
 **Nhóm:** 10  
  
 |Họ và Tên|MSSV|
@@ -29,12 +29,16 @@
 
 
 
-## Mô tả dự án
-Dự án tập trung vào việc phân tích và dự đoán giá phòng trọ tại TP.HCM dựa trên dữ liệu crawl từ phongtro123.com.
+## Mô tả đồ án
+Đồ án tập trung vào việc phân tích và dự đoán giá phòng trọ tại TP.HCM dựa trên dữ liệu crawl từ phongtro123.com.
 
 ### Thông số
-Nhóm thu thập > 20.000 records với > 10 features.
-
+Nhóm thu thập > 20.000 records với > 10 features, cụ thể:
+- Số dòng: 24122
+- Số cột: 17
+- Dung lượng: 4.3 MB
+- Danh sách features gồm:
+`title`,address,price,area,noithat,gac,kebep,maylanh,maygiat,tulanh,thangmay,chungchu,giotu,hamxe,ngaydang,thongtinmota,url
 ## Cài đặt  
 ### Yêu cầu
 - Python 3.10+
@@ -82,7 +86,7 @@ Intro2DS
 │    └──   Page901to1200.csv # Trang 901–1200
 ├───assets                 # Hình ảnh, biểu đồ minh họa trong báo cáo và notebook
 │
-├───notebooks              # Các Jupyter Notebook theo quy trình dự án
+├───notebooks              # Các Jupyter Notebook theo quy trình đồ án
 │    ├──   images/         # Thư mục lưu ảnh visualize (heatmap, distribution, feature importance...)
 │    ├──   CrawlData.ipynb # Notebook crawl dữ liệu từ phongtro123.com
 │    ├──   ProcessingData.ipynb # Xử lý dữ liệu thô, merge file, clean cơ bản
@@ -102,7 +106,7 @@ Intro2DS
 ```
 
 ## Quy trình & Notebook chính
-Đây là mô tả chi tiết quy trình xử lý dữ liệu thông qua hệ thống các Jupyter Notebooks, được ánh xạ khớp với cấu trúc thư mục và lộ trình (timeline) dự án mà nhóm đã thực hiện. Quy trình này tuân thủ chặt chẽ mô hình **CRISP-DM** (Cross-Industry Standard Process for Data Mining).
+Đây là mô tả chi tiết quy trình xử lý dữ liệu thông qua hệ thống các Jupyter Notebooks, được ánh xạ khớp với cấu trúc thư mục và lộ trình (timeline) đồ án mà nhóm đã thực hiện. Quy trình này tuân thủ chặt chẽ mô hình **CRISP-DM** (Cross-Industry Standard Process for Data Mining).
 
 ### 1. Thu thập dữ liệu (Data Collection)
 
@@ -141,24 +145,7 @@ Intro2DS
 
 
 
-### 3. Kiểm chứng tiện ích thông minh (Amenities Verification - Bonus)
-
-* **Notebook:** `Bonus_Extension.ipynb`
-* **Điểm nhấn công nghệ:** Sử dụng **Gemini 2.5 Flash** (Multimodal AI).
-* **Giai đoạn tương ứng:** Giai đoạn 6 (10/01 - 13/01/2026).
-* **Chi tiết quy trình:**
-  * **Vấn đề:** Các chủ trọ thường tích chọn "Có đủ tiện ích" (Claim) nhưng thực tế trong ảnh không có.
-  * **Giải pháp:**
-    1. Lấy URL ảnh từ dữ liệu đã crawl.
-    2. Gửi ảnh và danh sách tiện ích cần kiểm tra (ví dụ: máy lạnh, gác, kệ bếp) đến API của Gemini 2.5 Flash.
-    3. AI phân tích hình ảnh và trả về kết quả đối chiếu: **ĐỦ** hoặc **THIẾU** kèm lý do chi tiết.
-    4. So sánh kết quả AI với thông tin chủ trọ khai báo để đánh giá độ chính xác của dữ liệu tiện ích.
-
-  * **Mục đích:** Giúp người thuê nhà có cái nhìn chính xác hơn về tiện ích thực tế của phòng trọ, từ đó nâng cao độ tin cậy của dữ liệu.
-
-
-
-### 4. Khám phá dữ liệu & Phân tích chuyên sâu (EDA & Analysis)
+### 3. Khám phá dữ liệu & Phân tích chuyên sâu (EDA & Analysis)
 
 * **Notebooks:** `EDA.ipynb` và `Analysis.ipynb`.
 * **Giai đoạn tương ứng:** Giai đoạn 4 (24/11 - 04/12/2025) và Giai đoạn 5.
@@ -178,7 +165,7 @@ Intro2DS
 
 
 
-### 5. Xây dựng mô hình (Modeling & Evaluation)
+### 4. Xây dựng mô hình (Modeling & Evaluation)
 
 * **Notebook:** `Modeling.ipynb`
 * **Giai đoạn tương ứng:** Giai đoạn 5 và 6 (05/12/2025 - 13/01/2026).
@@ -191,6 +178,24 @@ Intro2DS
 
   * **Đầu ra:** Mô hình dự đoán giá phòng trọ với hiệu suất tối ưu.
   
+
+### Phần mở rộng - Kiểm chứng tiện ích thông minh (Amenities Verification)
+
+* **Notebook:** `Bonus_Extension.ipynb`
+* **Điểm nhấn công nghệ:** Sử dụng **Gemini 2.5 Flash** (Multimodal AI).
+* **Giai đoạn tương ứng:** Giai đoạn 6 (10/01 - 13/01/2026).
+* **Chi tiết quy trình:**
+  * **Vấn đề:** Các chủ trọ thường tích chọn "Có đủ tiện ích" (Claim) nhưng thực tế trong ảnh không có.
+  * **Giải pháp:**
+    1. Lấy URL ảnh từ dữ liệu đã crawl.
+    2. Gửi ảnh và danh sách tiện ích cần kiểm tra (ví dụ: máy lạnh, gác, kệ bếp) đến API của Gemini 2.5 Flash.
+    3. AI phân tích hình ảnh và trả về kết quả đối chiếu: **ĐỦ** hoặc **THIẾU** kèm lý do chi tiết.
+    4. So sánh kết quả AI với thông tin chủ trọ khai báo để đánh giá độ chính xác của dữ liệu tiện ích.
+
+  * **Mục đích:** Giúp người thuê nhà có cái nhìn chính xác hơn về tiện ích thực tế của phòng trọ, từ đó nâng cao độ tin cậy của dữ liệu.
+
+  * **Đầu ra:** Báo cáo kiểm chứng tiện ích với tỷ lệ chính xác và các ví dụ minh họa.
+
 _**Kết luận:**_
 Quy trình này đảm bảo tính khoa học, từ dữ liệu thô (Raw) đến tri thức (Insight) và cuối cùng là giải pháp (Model), khớp hoàn toàn với cấu trúc thư mục Github mà nhóm đã tổ chức.
 
@@ -209,8 +214,6 @@ Bạn có thể copy đoạn Markdown này vào file `README.md` hoặc báo cá
 
 
 ## Kết quả & So sánh mô hình
-<!-- ### Kết quả huấn luyện mô hình XGBoost -->
-<!-- ![XGBoost Traing Result](./assets/xgb.png) -->
 ### So sánh mô hình dự đoán giá phòng trọ
 ![Visualize Result](./assets/compare.png)
 ### Bảng kết quả mô hình dự đoán giá phòng trọ
@@ -225,7 +228,7 @@ Bạn có thể copy đoạn Markdown này vào file `README.md` hoặc báo cá
 - **XGBoost** là mô hình tốt nhất với R² cao nhất (0.5035) và lỗi tuyệt đối nhỏ nhất (MAE ~613k VND, RMSE ~801k VND).
 - **CatBoost** xếp thứ 2, vẫn vượt trội hơn các phiên bản Linear Regression.
 - **Linear Regression Optimized (ElasticNet)** cải thiện rõ rệt so với baseline (tăng R² từ 0.321 → 0.333), nhưng vẫn kém xa các mô hình boosting.
-- **Kết luận:** XGBoost là lựa chọn tối ưu cho bài toán dự đoán giá phòng trọ trong dự án này.
+- **Kết luận:** XGBoost là lựa chọn tối ưu cho bài toán dự đoán giá phòng trọ trong đồ án này.
 
 ## License
 MIT License - Phục vụ mục đích học tập & nghiên cứu.
