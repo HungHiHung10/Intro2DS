@@ -125,7 +125,7 @@ Intro2DS/
 
 * **Python:** 3.10+
 * **Jupyter Notebook / JupyterLab:** để chạy các file `.ipynb`
-* **API Key:** Google Gemini API key (dùng cho phần `Bonus_Extension.ipynb`) # đã có sẳn trong notebook
+* **API Key:** Google Gemini API key (dùng cho phần `Bonus_Extension.ipynb`) - Đã có sẳn trong notebook (Chú ý đến Quota)
 
 ---
 
@@ -133,13 +133,11 @@ Intro2DS/
 
 1. **Clone repository:**
 ```bash
-git clone [https://github.com/HungHiHung10/Intro2DS.git](https://github.com/HungHiHung10/Intro2DS.git)
+git clone https://github.com/HungHiHung10/Intro2DS.git
 cd Intro2DS
 ```
 
 2. Khởi tạo virtual environment
-
-
 
 _Khuyến nghị sử dụng `venv` hoặc `conda` để quản lý môi trường ảo._
 
@@ -171,15 +169,15 @@ jupyter notebook notebooks/
 
 Để đảm bảo luồng dữ liệu và các file trung gian được tạo đầy đủ, vui lòng thực hiện chạy các notebook trong thư mục `notebooks/` theo đúng trình tự sau:
 
-**1. Giai đoạn Thu thập & Sơ chế**
+**1. Giai đoạn Thu thập**
 * **CrawlData.ipynb**: Thực hiện crawl dữ liệu từ website phongtro123.com.
-* **ProcessingData.ipynb**: Hợp nhất các file dữ liệu thành phần và loại bỏ các bản ghi trùng lặp.
 
 **2. Giai đoạn Tiền xử lý & Khám phá**
 * **Pre_Processing.ipynb**: Chuyển đổi kiểu dữ liệu, sử dụng Regex để trích xuất thuộc tính từ mô tả và xử lý các giá trị thiếu.
 * **EDA.ipynb**: Thực hiện thống kê mô tả, vẽ Heatmap tương quan và xử lý các giá trị ngoại lai (Outliers).
 
 **3. Giai đoạn Phân tích & Mô hình hóa**
+* **ProcessingData.ipynb**: Xử lí chuẩn hóa dữ liệu, xử lí outliers & missing value. Đồng thời thực hiện Feature Engineering.
 * **Analysis.ipynb**: Trực quan hóa các insight quan trọng để trả lời 5 câu hỏi nghiên cứu chính của dự án.
 * **Modeling.ipynb**: Chia tập dữ liệu, huấn luyện các mô hình Machine Learning (XGBoost, CatBoost, Linear Regression) và đánh giá hiệu suất.
 * **Bonus_Extension.ipynb**: Phần mở rộng thêm - Sử dụng mô hình Gemini 2.5 Flash để đối chiếu tính xác thực của tiện ích qua hình ảnh.
