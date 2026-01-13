@@ -1,2 +1,42 @@
-geopy
-tqdm
+# --- Core Data Science & Math ---
+numpy==1.26.4
+pandas==2.2.2
+scipy==1.13.0
+
+# --- Visualization ---
+matplotlib==3.8.4
+seaborn==0.13.2
+
+# --- Machine Learning & AI ---
+scikit-learn==1.4.2
+xgboost==2.0.3
+catboost==1.2.5
+shap==0.45.1
+# [NEW] Thư viện Google Gemini API
+google-generativeai==0.7.2
+
+# --- Web Scraping & Automation ---
+selenium==4.21.0
+# [NEW] Gửi request HTTP (nhẹ hơn Selenium)
+requests==2.32.3
+# [NEW] Phân tích HTML
+beautifulsoup4==4.12.3
+
+# --- Image Processing ---
+# [NEW] Xử lý ảnh (PIL/Pillow)
+Pillow==10.3.0
+
+# --- Geospatial & String Matching ---
+geopy==2.4.1
+fuzzywuzzy==0.18.0
+python-Levenshtein==0.25.1  # Thư viện hỗ trợ tăng tốc cho fuzzywuzzy
+
+# --- Utilities & Progress ---
+tqdm==4.66.4
+ipywidgets==8.1.2
+
+# --- Jupyter Core (BẮT BUỘC ĐỂ CHẠY IPYNB) ---
+jupyter==1.0.0
+notebook==7.1.3
+ipykernel==6.29.4
+Jinja2==3.1.4
