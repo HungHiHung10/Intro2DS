@@ -115,7 +115,6 @@ Intro2DS/
 │   ├── processing.py        # Hàm xử lý text, regex
 │   └── visualize.py         # Hàm vẽ biểu đồ
 │
-├── assets/                  # Hình ảnh minh họa & kết quả
 ├── README.md                # File hướng dẫn này
 └── requirements.txt         # Danh sách thư viện
 ```
