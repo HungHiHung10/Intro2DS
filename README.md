@@ -1,7 +1,7 @@
 # Đồ Án Nhập môn Khoa học Dữ liệu
 
 **Môn học:** Nhập môn Khoa học Dữ liệu  
-**Giảng viên:** ThS. Lê Nhựt Nam  
+**Giảng viên Hướng dẫn:** Thầy Lê Ngọc Thành, Thầy Lê Nhựt Nam, Cô Võ Nam Thục Đoan  
 **Nhóm:** 10  
  
 |Họ và Tên|MSSV|
@@ -194,18 +194,26 @@ Intro2DS
 _**Kết luận:**_
 Quy trình này đảm bảo tính khoa học, từ dữ liệu thô (Raw) đến tri thức (Insight) và cuối cùng là giải pháp (Model), khớp hoàn toàn với cấu trúc thư mục Github mà nhóm đã tổ chức.
 
+
 ## Phân công công việc (Tóm tắt)
-| STT | Thành viên            | MSSV     | Nhiệm vụ chính                                                                    |
-| --- | --------------------- | -------- | --------------------------------------------------------------------------------- |
-| 1   | Nguyễn Hữu Khánh Hưng | 23120271 | Crawl data, Baseline Linear Regression, Hyperparameter tuning, Merge code, README |
-| 2   | Phạm Quốc Khánh       | 23120283 | Crawl data, XGBoost, Phân tích địa lý & tiện nghi (Câu 1,2), Báo cáo              |
-| 3   | Châu Huỳnh Phúc       | 23120329 | Feature Engineering, Correlation, Mùa vụ (Câu 5), Quản lý tiến độ                 |
-| 4   | Vũ Trần Phúc          | 23120333 | Word-embedding, CatBoost, Biến động giá & vị trí (Câu 3,4), Báo cáo tổng kết      |
+
+| STT | Thành viên                | MSSV     | Nhiệm vụ chính                                                                    | Đóng góp |
+| --- | ------------------------- | -------- | --------------------------------------------------------------------------------- | -------- |
+| 1   | **Nguyễn Hữu Khánh Hưng** | 23120271 | Crawl data, Baseline Linear Regression, Hyperparameter tuning, Merge code, README | **100%** |
+| 2   | **Phạm Quốc Khánh**       | 23120283 | Crawl data, XGBoost, Phân tích địa lý & tiện nghi (Câu 1,2), Báo cáo              | **100%** |
+| 3   | **Châu Huỳnh Phúc**       | 23120329 | Feature Engineering, Correlation, Mùa vụ (Câu 5), Quản lý tiến độ                 | **100%** |
+| 4   | **Vũ Trần Phúc**          | 23120333 | Word-embedding, CatBoost, Biến động giá & vị trí (Câu 3,4), Báo cáo tổng kết      | **100%** |
+
+Bạn có thể copy đoạn Markdown này vào file `README.md` hoặc báo cáo của bạn nhé.
+
+
+
 ## Kết quả & So sánh mô hình
 <!-- ### Kết quả huấn luyện mô hình XGBoost -->
 <!-- ![XGBoost Traing Result](./assets/xgb.png) -->
 ### So sánh mô hình dự đoán giá phòng trọ
 ![Visualize Result](./assets/compare.png)
+### Bảng kết quả mô hình dự đoán giá phòng trọ
 | Model                       | R²     | MAE (Triệu VND) | MSE    | RMSE   |
 | --------------------------- | ------ | --------------- | ------ | ------ |
 | XGBoost Regressor           | **0.5518** | **0.5763**          | **0.5786** | **0.7607** |
@@ -213,7 +221,6 @@ Quy trình này đảm bảo tính khoa học, từ dữ liệu thô (Raw) đế
 | Linear Regression Optimized | 0.3337 | 0.7630          | 1.0283 | 1.0140 |
 | Linear Regression           | 0.3251 | 0.7894          | 1.0523 | 1.0258 |
 
-### Bảng kết quả mô hình dự đoán giá phòng trọ
 **Nhận xét:**
 - **XGBoost** là mô hình tốt nhất với R² cao nhất (0.5035) và lỗi tuyệt đối nhỏ nhất (MAE ~613k VND, RMSE ~801k VND).
 - **CatBoost** xếp thứ 2, vẫn vượt trội hơn các phiên bản Linear Regression.
