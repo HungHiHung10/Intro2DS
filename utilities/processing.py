@@ -6,9 +6,7 @@ from geopy.geocoders import Nominatim
 from geopy.extra.rate_limiter import RateLimiter
 import os
 import re
-import glob
 from fuzzywuzzy import fuzz
-import sys
 
 # Khởi tạo công cụ định vị và cấu hình giới hạn tần suất để tuân thủ chính sách API
 geolocator = Nominatim(user_agent="hcm_rent_price")
