@@ -146,13 +146,13 @@ conda create -n intro2ds python=3.10
 conda activate intro2ds
 ```
 
-1. Cài đặt dependencies
+3. Cài đặt dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-1. Chạy các notebooks theo thứ tự(trong thư mục `notebooks/`)
+4. Chạy các notebooks theo thứ tự(trong thư mục `notebooks/`)
 
 ```bash
 jupyter notebook notebooks/
